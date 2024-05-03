@@ -1,46 +1,44 @@
 import time
 import matplotlib.pyplot as plt
 
-# 自頂向下計算 Fibonacci 數列
-def fibonacci_top_down(n, memo={}):
-    if n in memo:
-        return memo[n]
-    if n <= 2:
-        return 1
-    memo[n] = fibonacci_top_down(n - 1, memo) + fibonacci_top_down(n - 2, memo)
-    return memo[n]
+#top-down ( divide and conqure/ pure recursive)
+def fibonacci_recursive(n):
+    if n <= 1:
+        return n
+    else:
+        return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)
+#bottom-up (dynamic-programming-like)
+def fibonacci_dynamic(n):
+    fib = [0] * (n+1)
+    fib[1] = 1
+    for i in range(2, n+1):
+        fib[i] = fib[i-1] + fib[i-2]
+    return fib[n]
 
-# 自底向上計算 Fibonacci 數列
-def fibonacci_bottom_up(n):
-    if n <= 2:
-        return 1
-    bottom_up = [0] * (n + 1)
-    bottom_up[1] = 1
-    bottom_up[2] = 1
-    for i in range(3, n + 1):
-        bottom_up[i] = bottom_up[i - 1] + bottom_up[i - 2]
-    return bottom_up[n]
+n_values = list(range(1, 101))
+execution_times_recursive = []
+execution_times_dynamic = []
+plot_needed = True
 
-# 測量執行時間
-def measure_execution_time(func, max_n):
-    execution_times = []
-    for n in range(1, max_n + 1):
-        start_time = time.time()
-        func(n)
-        end_time = time.time()
-        execution_times.append(end_time - start_time)
-    return execution_times
+for n in n_values:
+    start_time = time.time()
+    result = fibonacci_recursive(n)
+    execution_time = time.time() - start_time
+    print(f"F({n}) is {result}, calculated in {execution_time:.6f} seconds using top-down (recursive) approach.")
+    execution_times_recursive.append(execution_time)
 
-max_n = 100
-top_down_times = measure_execution_time(fibonacci_top_down, max_n)
-bottom_up_times = measure_execution_time(fibonacci_bottom_up, max_n)
+    start_time = time.time()
+    result = fibonacci_dynamic(n)
+    execution_time = time.time() - start_time
+    print(f"F({n}) is {result}, calculated in {execution_time:.6f} seconds using bottom-up (dynamic programming) approach.")
+    execution_times_dynamic.append(execution_time)
 
-
-# 繪製折線圖
-plt.plot(range(1, max_n + 1), top_down_times, label='Top-Down')
-plt.plot(range(1, max_n + 1), bottom_up_times, label='Bottom-Up')
-plt.xlabel('n')
-plt.ylabel('Execution Time (s)')
-plt.title('Execution Time of Fibonacci Calculation')
-plt.legend()
-plt.show()
+    if max(execution_times_recursive[-1], execution_times_dynamic[-1]) > 100 and plot_needed:
+        plt.plot(n_values[:n], execution_times_recursive, label='Top-down (Recursive)')
+        plt.plot(n_values[:n], execution_times_dynamic, label='Bottom-up (Dynamic Programming)')
+        plt.xlabel('n')
+        plt.ylabel('Execution Time (seconds)')
+        plt.title('Execution Time of Fibonacci Calculation')
+        plt.legend()
+        plt.show()
+        plot_needed = False
